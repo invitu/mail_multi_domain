@@ -17,6 +17,7 @@
                         <field name="alias_domain"/>
                         <field name="company_id"/>
                         <field name="user_id" invisible="1"/>
+                        <field name="signature_alias"/>
                     </tree>
                 </field>
             </xpath>
@@ -35,6 +36,7 @@
                         <field name="alias_domain"/>
                         <field name="company_id"/>
                         <field name="user_id" invisible="1"/>
+                        <field name="signature_alias"/>
                     </tree>
                 </field>
             </xpath>

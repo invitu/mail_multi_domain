@@ -30,6 +30,10 @@ class MailUserAlias(models.Model):
         string='Company',
         default=lambda self: self.env.user.company_id.id
     )
+    signature_alias = fields.Html(
+        string='Signature',
+        default=''
+    )
 
     _sql_constraints = [
         ('email_uniq', 'unique(email,alias_domain)', 'Email should be unique!')

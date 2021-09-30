@@ -34,6 +34,14 @@ class MailMail(models.Model):
                 if alias_domain:
                     company_server_id = self.env['ir.mail_server'].search(
                         [('force_alias_domain', '=', alias_domain)])
+
+                    sign_config = self.env['ir.config_parameter'].sudo().get_param('mail.use_different_signature')
+                    if sign_config == 'True':
+                        signature = user.signature
+                        if user.mail_user_alias_ids.filtered(lambda r: r.alias_domain == alias_domain):
+                            signature = user.mail_user_alias_ids.filtered(lambda r: r.alias_domain == alias_domain).signature_alias
+                            mail.body_html = mail.body + signature
+
                     partner = user.mail_user_alias_ids.filtered(
                         lambda r: r.alias_domain == alias_domain) or user.partner_id
                     mail.mail_server_id = company_server_id
