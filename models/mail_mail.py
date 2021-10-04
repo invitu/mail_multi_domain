@@ -21,33 +21,30 @@ class MailMail(models.Model):
 
                 partner = user.partner_id
                 mail.mail_server_id = server_id
-                mail.email_from = formataddr((
-                    partner.name,
-                    partner.email
-                ))
+                mail.email_from = formataddr((partner.name, partner.email))
             else:
-                alias_domain = ''
-                if 'force_alias_domain' in self.env[mail.model]._fields.keys():
-                    alias_domain = self.env[mail.model].sudo().browse(mail.res_id).force_alias_domain
-                if not alias_domain:
-                    alias_domain = user.company_id.sudo().force_alias_domain
+                alias_domain = self._get_alias_domain(mail, user)
                 if alias_domain:
-                    company_server_id = self.env['ir.mail_server'].search(
-                        [('force_alias_domain', '=', alias_domain)])
-
+                    company_server_id = self.env['ir.mail_server'].search([('force_alias_domain', '=', alias_domain)])
                     sign_config = self.env['ir.config_parameter'].sudo().get_param('mail.use_different_signature')
-                    if sign_config == 'True':
+                    user_alias = user.mail_user_alias_ids.filtered(lambda r: r.alias_domain == alias_domain)
+                    if sign_config:
                         signature = user.signature
-                        if user.mail_user_alias_ids.filtered(lambda r: r.alias_domain == alias_domain):
-                            signature = user.mail_user_alias_ids.filtered(lambda r: r.alias_domain == alias_domain).signature_alias
+                        if user_alias and user_alias.signature_alias:
+                            signature = user_alias.signature_alias
                             mail.body_html = mail.body + signature
 
-                    partner = user.mail_user_alias_ids.filtered(
-                        lambda r: r.alias_domain == alias_domain) or user.partner_id
+                    partner = user_alias or user.partner_id
                     mail.mail_server_id = company_server_id
-                    mail.email_from = formataddr((
-                        partner.name,
-                        partner.email.split('@')[0] + '@' + alias_domain
-                    ))
+                    mail.email_from = formataddr((partner.name, partner.email.split('@')[0] + '@' + alias_domain))
 
         return super(MailMail, self)._split_by_server()
+
+    def _get_alias_domain(self, mail, user):
+        alias_domain = ''
+        if 'force_alias_domain' in self.env[mail.model]._fields.keys():
+            alias_domain = self.env[mail.model].sudo().browse(mail.res_id).force_alias_domain
+        if not alias_domain:
+            alias_domain = user.company_id.sudo().force_alias_domain
+
+        return alias_domain
