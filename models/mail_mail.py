@@ -29,10 +29,8 @@ class MailMail(models.Model):
                     sign_config = self.env['ir.config_parameter'].sudo().get_param('mail.use_different_signature')
                     user_alias = user.mail_user_alias_ids.filtered(lambda r: r.alias_domain == alias_domain)
                     if sign_config:
-                        signature = user.signature
                         if user_alias and user_alias.signature_alias:
-                            signature = user_alias.signature_alias
-                            mail.body_html = mail.body + signature
+                            mail.body_html = mail.body_html.replace(user.signature, user_alias.signature_alias)
 
                     partner = user_alias or user.partner_id
                     mail.mail_server_id = company_server_id
