@@ -29,8 +29,7 @@ class ResUsers(models.Model):
             'server_mail_id',
         ]
 
-        init_res = super().__init__(pool, cr)
+        super().__init__(pool, cr)
         # duplicate list to avoid modifying the original reference
         type(self).SELF_READABLE_FIELDS = type(self).SELF_READABLE_FIELDS + sale_stock_writeable_fields
         type(self).SELF_WRITEABLE_FIELDS = type(self).SELF_WRITEABLE_FIELDS + sale_stock_writeable_fields
-        return init_res
