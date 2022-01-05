@@ -8,7 +8,7 @@ from odoo.tools import formataddr
 class MailMail(models.Model):
     _inherit = 'mail.mail'
 
-    def _split_by_server(self):
+    def _split_by_mail_configuration(self):
         user_config = self.env['ir.config_parameter'].sudo().get_param('mail.split_server_mail_by_user')
         for mail in self.filtered(lambda r: not r.mail_server_id):
             user = self.env['res.users'].search([('partner_id', '=', mail.author_id.id)])
@@ -28,7 +28,7 @@ class MailMail(models.Model):
                     company_server_id = self.env['ir.mail_server'].search([('force_alias_domain', '=', alias_domain)])
                     sign_config = self.env['ir.config_parameter'].sudo().get_param('mail.use_different_signature')
                     user_alias = user.mail_user_alias_ids.filtered(lambda r: r.alias_domain == alias_domain)
-                    if sign_config:
+                    if sign_config == 'True':
                         if user_alias and user_alias.signature_alias:
                             mail.body_html = mail.body_html.replace(user.signature, user_alias.signature_alias)
 
@@ -36,7 +36,7 @@ class MailMail(models.Model):
                     mail.mail_server_id = company_server_id
                     mail.email_from = formataddr((partner.name, partner.email.split('@')[0] + '@' + alias_domain))
 
-        return super(MailMail, self)._split_by_server()
+        return super(MailMail, self)._split_by_mail_configuration()
 
     def _get_alias_domain(self, mail, user):
         alias_domain = ''
