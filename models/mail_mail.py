@@ -12,7 +12,9 @@ class MailMail(models.Model):
     def _split_by_mail_configuration(self):
         user_config = self.env['ir.config_parameter'].sudo().get_param('mail.split_server_mail_by_user')
         for mail in self.filtered(lambda r: not r.mail_server_id):
-            user = self.env['res.users'].search([('partner_id', '=', mail.author_id.id)])
+            user = self.env['res.users'].with_context(active_test=False).search(
+                [('partner_id', '=', mail.author_id.id)]
+            )
 
             if user_config == 'True':
                 server_id = user.server_mail_id
@@ -20,7 +22,7 @@ class MailMail(models.Model):
                     alias_domain = user.company_id.sudo().force_alias_domain
                     server_id = self.env['ir.mail_server'].search([('force_alias_domain', '=', alias_domain)])
 
-                partner = user.partner_id
+                partner = user.partner_id or mail.author_id.id
                 mail.mail_server_id = server_id
                 mail.email_from = formataddr((partner.name, partner.email))
             else:
