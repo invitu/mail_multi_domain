@@ -18,7 +18,7 @@ class MailMail(models.Model):
             if user_config == 'True':
                 server_id = user.server_mail_id
                 if not server_id:
-                    alias_domain = user.company_id.sudo().force_alias_domain
+                    alias_domain = self.env.company.sudo().force_alias_domain
                     server_id = self.env['ir.mail_server'].search([('force_alias_domain', '=', alias_domain)])
 
                 partner = user.partner_id or mail.author_id.id
@@ -45,6 +45,6 @@ class MailMail(models.Model):
         if 'force_alias_domain' in self.env[mail.model]._fields.keys():
             alias_domain = self.env[mail.model].sudo().browse(mail.res_id).force_alias_domain
         if not alias_domain:
-            alias_domain = user.company_id.sudo().force_alias_domain
+            alias_domain = self.env.company.sudo().force_alias_domain
 
         return alias_domain

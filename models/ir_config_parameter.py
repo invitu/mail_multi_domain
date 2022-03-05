@@ -19,7 +19,7 @@ class IrConfigParameter(models.Model):
                         'force_alias_domain' in self.env[self.env.context['active_model']]._fields.keys():
                     alias_domain = self.env[self.env.context['active_model']].sudo(
                     ).browse(self.env.context['active_id']).force_alias_domain
-                if not alias_domain and self._context.get('uid'):
-                    alias_domain = self.env['res.users'].browse(self._context.get('uid')).company_id.sudo(
+                if not alias_domain and self.env.company:
+                    alias_domain = self.env.company.sudo(
                     ).force_alias_domain
         return alias_domain or super(IrConfigParameter, self).get_param(key=key, default=default)
