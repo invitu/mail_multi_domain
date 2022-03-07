@@ -45,6 +45,6 @@ class MailMail(models.Model):
         if 'force_alias_domain' in self.env[mail.model]._fields.keys():
             alias_domain = self.env[mail.model].sudo().browse(mail.res_id).force_alias_domain
         if not alias_domain:
-            alias_domain = user.company_id.sudo().force_alias_domain
+            alias_domain = self.env.company.sudo().force_alias_domain
 
         return alias_domain
